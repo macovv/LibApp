@@ -45,5 +45,27 @@ namespace LibApp.Api.Controllers
         {
             return Ok(await _mediator.Send(new Rent.Command() { BookId = id}));
         }
+
+        [Authorize]
+        [HttpPost("{id}/return")]
+        public async Task<IActionResult> ReturnBook(int id)
+        {
+            return Ok(await _mediator.Send(new Return.Command() { BookId = id }));
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditBook(int id, Update.Command command)
+        {
+            command.BookId = id;
+            return Ok(await _mediator.Send(command));
+        }
+
+        [Authorize]
+        [HttpPost("{id}/newCopy")]
+        public async Task<ActionResult> NewCopy(int id)
+        {
+            return Ok(await _mediator.Send(new AddCopy.Command() { BookId = id }));
+        }
     }
 }

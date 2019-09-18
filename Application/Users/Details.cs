@@ -32,7 +32,7 @@ namespace Application.Users
             public async Task<AppUser> Handle(Query request, CancellationToken cancellationToken)
             {
                 //var user = await _ctx.Users.Include(x => x.RentedBooks).ThenInclude(w => w.).SingleOrDefaultAsync(u => u.UserName == request.UserName);
-                var user = await _ctx.Users.Include(x => x.RentedBooks).ThenInclude(w => w.Book).SingleOrDefaultAsync(u => u.UserName == request.UserName);
+                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(u => u.UserName == request.UserName);
                 if(user == null)
                     throw new RestException(HttpStatusCode.NotFound, new { user = "Not Found" });
                 return user;

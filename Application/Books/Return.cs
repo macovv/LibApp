@@ -1,23 +1,17 @@
-﻿using Application.Errors;
-using Application.Interfaces;
-using Domain;
+﻿using Application.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Security.Claims;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Application.Books
 {
-    public class Rent
+    public class Return
     {
         public class Command : IRequest
         {
@@ -26,30 +20,32 @@ namespace Application.Books
 
         public class Handler : IRequestHandler<Command>
         {
-            private readonly AppDbContext _ctx;
             private readonly IUserAccessor _userAccessor;
+            private readonly AppDbContext _ctx;
 
-            public Handler(AppDbContext ctx, IUserAccessor userAccessor)
+            public Handler(IUserAccessor userAccessor, AppDbContext ctx)
             {
-                this._ctx = ctx;
                 this._userAccessor = userAccessor;
+                this._ctx = ctx;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
                 var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == _userAccessor.getUserName());
-                var book = await _ctx.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.BookId);
+                var book = await _ctx.Books.SingleOrDefaultAsync(x => x.BookId == request.BookId);
 
-                if (book.AvailableCopies > 0)
+                var rentedBooks = user.RentedBooks.Where(x => x.BookId == request.BookId).ToList();
+                if (rentedBooks != null)
                 {
-                    var copy = book.BookCopies.Where(x => x.IsAvailable == true).FirstOrDefault();
-                    copy.IsAvailable = false;
-                    book.AvailableCopies--;
-                    user.RentedBooks.Add(copy);
+                    foreach (var rentedBook in rentedBooks)
+                    {
+                        user.RentedBooks.Remove(rentedBook);
+                        rentedBook.IsAvailable = true;
+                        book.AvailableCopies++;
+                    }
                     await _ctx.SaveChangesAsync();
-                    return Unit.Value;
                 }
-                throw new RestException(HttpStatusCode.BadRequest);
+                return Unit.Value;
             }
         }
     }
