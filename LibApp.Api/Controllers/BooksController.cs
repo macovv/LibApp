@@ -32,7 +32,7 @@ namespace LibApp.Api.Controllers
             return Ok(await _mediator.Send(new Details.Query{Id = id}));
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Add(Add.Command command)
         {
@@ -61,11 +61,12 @@ namespace LibApp.Api.Controllers
             return Ok(await _mediator.Send(command));
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/newCopy")]
-        public async Task<ActionResult> NewCopy(int id)
+        public async Task<ActionResult> NewCopy(int id, AddCopy.Command command)
         {
-            return Ok(await _mediator.Send(new AddCopy.Command() { BookId = id }));
+            command.BookId = id;
+            return Ok(await _mediator.Send(command));
         }
     }
 }

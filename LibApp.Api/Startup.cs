@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -45,7 +46,9 @@ namespace LibApp.Api
                 opt.Password.RequireDigit = true;
                 opt.Password.RequireUppercase = false;
                 opt.Password.RequireNonAlphanumeric = false;
-            }).AddEntityFrameworkStores<AppDbContext>();
+            })
+               .AddRoles<IdentityRole>()
+               .AddEntityFrameworkStores<AppDbContext>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(opt =>
@@ -73,6 +76,7 @@ namespace LibApp.Api
                 .AddJsonOptions(
                         options => options.SerializerSettings.ReferenceLoopHandling
                             = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+            CreateUserRoles(services).Wait();
         }
         
 
@@ -92,6 +96,26 @@ namespace LibApp.Api
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
+        }
+
+        private async Task CreateUserRoles(IServiceCollection services)
+        {
+            var RoleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole>>();
+            var UserManager = services.BuildServiceProvider().GetService<UserManager<AppUser>>();
+
+            IdentityResult roleResult;
+            //Adding Admin Role
+            var roleCheck = await RoleManager.RoleExistsAsync("Admin");
+            if (!roleCheck)
+            {
+                //create the roles and seed them to the database
+                roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+            //Assign Admin role to the main User here we have given our newly registered 
+            //login id for Admin management
+            AppUser user = await UserManager.FindByEmailAsync("szampon@gmail.com");
+            var User = new AppUser();
+            await UserManager.AddToRoleAsync(user, "Admin");
         }
     }
 }

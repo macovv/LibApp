@@ -1,5 +1,6 @@
 ﻿using Application.Errors;
 using Domain;
+using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
@@ -18,6 +19,15 @@ namespace Application.Books
         public class Command : IRequest
         {
             public int BookId { get; set; }
+            public int Amount { get; set; }
+        }
+
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x => x.Amount).NotEmpty();
+            }
         }
 
         public class Handler : IRequestHandler<Command>
@@ -36,7 +46,10 @@ namespace Application.Books
 
                 if(book != null)
                 {
-                    book.BookCopies.Add(new Copy() { IsAvailable = true });
+                    for(int i = 0; i < request.Amount; i++)
+                    {
+                        book.BookCopies.Add(new Copy() { IsAvailable = true });
+                    }
                     book.Quantity = book.BookCopies.Count();
                     book.AvailableCopies = book.Quantity - book.BookCopies.Where(x => x.IsAvailable == false).Count();
                     if (await _ctx.SaveChangesAsync() > 0)

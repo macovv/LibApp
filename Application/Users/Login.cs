@@ -39,7 +39,7 @@ namespace Application.Users
                 var result = await _signInManager.PasswordSignInAsync(loggedUser.UserName, request.Password, false, false);
                 if(result.Succeeded)
                 {
-                    var token = _jwtService.CreateToken(loggedUser);
+                    var token = await _jwtService.CreateToken(loggedUser);
                     return new User { Token = token, Email = loggedUser.Email, UserName = loggedUser.UserName };
                 }
                 throw new RestException(HttpStatusCode.BadRequest);
