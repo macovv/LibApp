@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Persistence;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -31,14 +32,13 @@ namespace Application.Books
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var book = await _ctx.Books.SingleOrDefaultAsync(x => x.BookId == request.BookId);
+                var book = await _ctx.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.BookId);
 
                 if(book != null)
                 {
-                    book.BookCopies = new List<Copy>();
                     book.BookCopies.Add(new Copy() { IsAvailable = true });
-                    book.Quantity++;
-                    book.AvailableCopies++;
+                    book.Quantity = book.BookCopies.Count();
+                    book.AvailableCopies = book.Quantity - book.BookCopies.Where(x => x.IsAvailable == false).Count();
                     if (await _ctx.SaveChangesAsync() > 0)
                     {
                         return Unit.Value;
