@@ -103,19 +103,19 @@ namespace LibApp.Api
             var RoleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole>>();
             var UserManager = services.BuildServiceProvider().GetService<UserManager<AppUser>>();
 
-            IdentityResult roleResult;
-            //Adding Admin Role
-            var roleCheck = await RoleManager.RoleExistsAsync("Admin");
-            if (!roleCheck)
+            if (!(await RoleManager.RoleExistsAsync("Admin")))
             {
-                //create the roles and seed them to the database
-                roleResult = await RoleManager.CreateAsync(new IdentityRole("Admin"));
+                await RoleManager.CreateAsync(new IdentityRole("Admin"));
             }
-            //Assign Admin role to the main User here we have given our newly registered 
-            //login id for Admin management
+
+            if (!(await RoleManager.RoleExistsAsync("User")))
+            {
+                await RoleManager.CreateAsync(new IdentityRole("User"));
+            }
+
             AppUser user = await UserManager.FindByEmailAsync("szampon@gmail.com");
-            var User = new AppUser();
             await UserManager.AddToRoleAsync(user, "Admin");
+            await UserManager.AddToRoleAsync(user, "User");
         }
     }
 }

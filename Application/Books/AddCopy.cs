@@ -26,7 +26,7 @@ namespace Application.Books
         {
             public CommandValidator()
             {
-                RuleFor(x => x.Amount).NotEmpty();
+                RuleFor(x => x.Amount).NotEmpty().GreaterThan(0);
             }
         }
 

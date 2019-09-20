@@ -38,15 +38,13 @@ namespace Application.Users
 
         public class Handler : IRequestHandler<Command>
         {
-            private readonly AppDbContext context;
-            private readonly SignInManager<AppUser> signInManager;
-            private readonly UserManager<AppUser> userManager;
+            private readonly UserManager<AppUser> _userManager;
+            private readonly RoleManager<IdentityRole> _roleManager;
 
-            public Handler(AppDbContext context, SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
+            public Handler( UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
             {
-                this.context = context;
-                this.signInManager = signInManager;
-                this.userManager = userManager;
+                this._userManager = userManager;
+                this._roleManager = roleManager;
             }
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
@@ -60,9 +58,13 @@ namespace Application.Users
                     UserName = request.UserName
                 };
 
-                var result = await userManager.CreateAsync(userToCreate, request.Password);
-                if(result.Succeeded)
+
+                var result = await _userManager.CreateAsync(userToCreate, request.Password);
+                var addClaimResult = await _userManager.AddToRoleAsync(userToCreate, "User");
+
+                if(result.Succeeded && addClaimResult.Succeeded)
                 {
+                    Console.WriteLine("=========================================================== OK");
                     return Unit.Value;
                 }
                 throw new RestException(HttpStatusCode.BadRequest);
