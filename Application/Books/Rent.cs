@@ -40,7 +40,7 @@ namespace Application.Books
                 var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == _userAccessor.getUserName());
                 var book = await _ctx.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.BookId);
 
-                if (book.AvailableCopies > 0)
+                if (book.AvailableCopies > 0 && user.RentedBooks.Count() < AppUser.RentedBooksLimit && user.RentedBooks.Where(copy => copy.BookId == request.BookId).Count() == 0)
                 {
                     var copy = book.BookCopies.Where(x => x.IsAvailable == true).FirstOrDefault();
                     copy.IsAvailable = false;
@@ -49,6 +49,10 @@ namespace Application.Books
                     await _ctx.SaveChangesAsync();
                     return Unit.Value;
                 }
+                if (user.RentedBooks.Count() > AppUser.RentedBooksLimit)
+                    throw new Exception("You have to return some books to rent this one");
+                if (book.AvailableCopies == 0)
+                    throw new Exception("Sorry, there is 0 available books, you have to wait!");
                 throw new RestException(HttpStatusCode.BadRequest);
             }
         }

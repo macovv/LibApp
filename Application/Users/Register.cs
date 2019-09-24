@@ -41,7 +41,7 @@ namespace Application.Users
             private readonly UserManager<AppUser> _userManager;
             private readonly RoleManager<IdentityRole> _roleManager;
 
-            public Handler( UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
+            public Handler(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
             {
                 this._userManager = userManager;
                 this._roleManager = roleManager;
@@ -58,13 +58,11 @@ namespace Application.Users
                     UserName = request.UserName
                 };
 
-
                 var result = await _userManager.CreateAsync(userToCreate, request.Password);
                 var addClaimResult = await _userManager.AddToRoleAsync(userToCreate, "User");
 
                 if(result.Succeeded && addClaimResult.Succeeded)
                 {
-                    Console.WriteLine("=========================================================== OK");
                     return Unit.Value;
                 }
                 throw new RestException(HttpStatusCode.BadRequest);

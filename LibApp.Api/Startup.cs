@@ -76,7 +76,7 @@ namespace LibApp.Api
                 .AddJsonOptions(
                         options => options.SerializerSettings.ReferenceLoopHandling
                             = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-            CreateUserRoles(services).Wait();
+            //CreateUserRoles(services).Wait();
         }
         
 

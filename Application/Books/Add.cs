@@ -16,12 +16,10 @@ namespace Application.Books
     {
         public class Command : IRequest
         {
-            //CHANGE IT TO DTO???
             public int BookId { get; set; }
             public string Title { get; set; }
             public string Description { get; set; }
             public int Quantity { get; set; }
-            //public DateTime Added { get; set; }
         }
 
         public class CommandValidator : AbstractValidator<Command>
