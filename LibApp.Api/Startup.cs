@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Books;
 using Application.Interfaces;
+using AutoMapper;
 using Domain;
 using FluentValidation.AspNetCore;
 using Infrastructure.JwtService;
@@ -67,6 +68,7 @@ namespace LibApp.Api
 
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserAccessor, UserAccessor>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddMvc().AddFluentValidation(cfg =>
                 {

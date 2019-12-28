@@ -26,8 +26,8 @@ namespace Application.Books
         {
             public CommandValidator()
             {
-                //RuleFor(x => x.Title).NotEmpty();
-                //RuleFor(x => x.Description).NotEmpty();
+                RuleFor(x => x.Title).NotEmpty();
+                RuleFor(x => x.Description).NotEmpty();
             }
         }
 

@@ -1,4 +1,6 @@
 ﻿using Application.Errors;
+using Application.Users.DTOs;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -15,27 +17,29 @@ namespace Application.Users
 {
     public class Details
     {
-        public class Query : IRequest<AppUser>
+        public class Query : IRequest<AppUserDto>
         {
             public string UserName { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, AppUser>
+        public class Handler : IRequestHandler<Query, AppUserDto>
         {
             private readonly AppDbContext _ctx;
+            private readonly IMapper _mapper;
 
-            public Handler(AppDbContext ctx)
+            public Handler(AppDbContext ctx, IMapper mapper)
             {
                 this._ctx = ctx;
+                this._mapper = mapper;
             }
 
-            public async Task<AppUser> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<AppUserDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                //var user = await _ctx.Users.Include(x => x.RentedBooks).ThenInclude(w => w.).SingleOrDefaultAsync(u => u.UserName == request.UserName);
                 var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(u => u.UserName == request.UserName);
                 if(user == null)
                     throw new RestException(HttpStatusCode.NotFound, new { user = "Not Found" });
-                return user;
+                var userDto = _mapper.Map<AppUser, AppUserDto>(user);
+                return userDto;
             }
         }
     }

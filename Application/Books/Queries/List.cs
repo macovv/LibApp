@@ -1,4 +1,6 @@
-﻿using Application.Errors;
+﻿using Application.Books.Queries.DTOs;
+using Application.Errors;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,23 +16,26 @@ namespace Application.Books
 {
     public class List
     {
-        public class Query : IRequest<List<Book>> {}
+        public class Query : IRequest<List<BookDto>> {}
 
-        public class Handler : IRequestHandler<Query, List<Book>>
+        public class Handler : IRequestHandler<Query, List<BookDto>>
         {
             private readonly AppDbContext _context;
+            private readonly IMapper _mapper;
 
-            public Handler(AppDbContext context)
+            public Handler(AppDbContext context, IMapper mapper)
             {
                 this._context = context;
+                this._mapper = mapper;
             }
 
-            public async Task<List<Book>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<List<BookDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var books = await _context.Books.ToListAsync();
+                var booksDto = _mapper.Map<List<Book>, List<BookDto>>(books);
                 if (books == null)
                     throw new RestException(HttpStatusCode.NotFound);
-                return books;
+                return booksDto;
             }
         }
     }

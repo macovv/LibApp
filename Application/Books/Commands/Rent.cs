@@ -22,6 +22,7 @@ namespace Application.Books
         public class Command : IRequest
         {
             public int BookId { get; set; }
+            public string UserName { get; set; }
         }
 
         public class Handler : IRequestHandler<Command>
@@ -37,13 +38,15 @@ namespace Application.Books
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == _userAccessor.getUserName());
+                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == request.UserName);
                 var book = await _ctx.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.BookId);
 
                 if (book.AvailableCopies > 0 && user.RentedBooks.Count() < AppUser.RentedBooksLimit && user.RentedBooks.Where(copy => copy.BookId == request.BookId).Count() == 0)
                 {
                     var copy = book.BookCopies.Where(x => x.IsAvailable == true).FirstOrDefault();
                     copy.IsAvailable = false;
+                    copy.RentDate = DateTime.Now;
+                    copy.ReturnDate = DateTime.Now.AddDays(7);
                     book.AvailableCopies--;
                     user.RentedBooks.Add(copy);
                     await _ctx.SaveChangesAsync();

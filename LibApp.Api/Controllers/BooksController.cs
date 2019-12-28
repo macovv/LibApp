@@ -39,21 +39,21 @@ namespace LibApp.Api.Controllers
             return Ok(await _mediator.Send(command));
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/rent")]
-        public async Task<IActionResult> Rent(int id)
+        public async Task<IActionResult> Rent(int id, Rent.Command command)
         {
-            return Ok(await _mediator.Send(new Rent.Command() { BookId = id}));
+            return Ok(await _mediator.Send(new Rent.Command() { BookId = id, UserName = command.UserName })) ;;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost("{id}/return")]
-        public async Task<IActionResult> ReturnBook(int id)
+        public async Task<IActionResult> ReturnBook(int id, Rent.Command command)
         {
-            return Ok(await _mediator.Send(new Return.Command() { BookId = id }));
+            return Ok(await _mediator.Send(new Return.Command() { BookId = id, UserName = command.UserName }));
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> EditBook(int id, Update.Command command)
         {

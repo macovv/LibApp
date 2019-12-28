@@ -11,5 +11,7 @@ namespace Domain
         public int BookId { get; set; }
         public AppUser CurrentUser { get; set; }
         public bool IsAvailable { get; set; }
+        public DateTime RentDate { get; set; }
+        public DateTime ReturnDate { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using Application.Errors;
+using Application.Users.DTOs;
+using AutoMapper;
 using Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,23 +16,26 @@ namespace Application.Users
 {
     public class List
     {
-        public class Query : IRequest<List<AppUser>> { }
+        public class Query : IRequest<List<AppUserDto>> { }
 
-        public class Handler : IRequestHandler<Query, List<AppUser>>
+        public class Handler : IRequestHandler<Query, List<AppUserDto>>
         {
             private readonly AppDbContext _ctx;
+            private readonly IMapper _mapper;
 
-            public Handler(AppDbContext ctx)
+            public Handler(AppDbContext ctx, IMapper mapper)
             {
                 this._ctx = ctx;
+                this._mapper = mapper;
             }
 
-            public async Task<List<AppUser>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<List<AppUserDto>> Handle(Query request, CancellationToken cancellationToken)
             {
                 var users = await _ctx.Users.ToListAsync();
                 if (users == null)
                     throw new RestException(HttpStatusCode.NotFound);
-                return users;
+                var usersDto = _mapper.Map<List<AppUser>, List<AppUserDto>>(users);
+                return usersDto;
             }
         }
     }

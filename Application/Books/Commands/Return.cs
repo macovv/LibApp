@@ -16,6 +16,7 @@ namespace Application.Books
         public class Command : IRequest
         {
             public int BookId { get; set; }
+            public string UserName { get; set; }
         }
 
         public class Handler : IRequestHandler<Command>
@@ -31,7 +32,7 @@ namespace Application.Books
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == _userAccessor.getUserName());
+                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == request.UserName);
                 var book = await _ctx.Books.SingleOrDefaultAsync(x => x.BookId == request.BookId);
 
                 var rentedBooks = user.RentedBooks.Where(x => x.BookId == request.BookId).ToList();
@@ -41,6 +42,8 @@ namespace Application.Books
                     {
                         user.RentedBooks.Remove(rentedBook);
                         rentedBook.IsAvailable = true;
+                        rentedBook.ReturnDate = DateTime.MinValue;
+                        rentedBook.RentDate = DateTime.MinValue;
                         book.AvailableCopies++;
                     }
                     await _ctx.SaveChangesAsync();
