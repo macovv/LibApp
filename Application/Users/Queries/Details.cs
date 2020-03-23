@@ -35,7 +35,7 @@ namespace Application.Users
 
             public async Task<AppUserDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(u => u.UserName == request.UserName);
+                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(u => u.UserName == request.UserName, cancellationToken: cancellationToken);
                 if(user == null)
                     throw new RestException(HttpStatusCode.NotFound, new { user = "Not Found" });
                 var userDto = _mapper.Map<AppUser, AppUserDto>(user);

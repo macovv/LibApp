@@ -49,7 +49,7 @@ namespace Application.Users
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                //automappper and delete unused fields
+                //automapper and delete unused fields
                 var userToCreate = new AppUser()
                 {
                     FirstName = request.FirstName,

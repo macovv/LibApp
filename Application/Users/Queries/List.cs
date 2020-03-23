@@ -31,7 +31,7 @@ namespace Application.Users
 
             public async Task<List<AppUserDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var users = await _ctx.Users.ToListAsync();
+                var users = await _ctx.Users.ToListAsync(cancellationToken: cancellationToken);
                 if (users == null)
                     throw new RestException(HttpStatusCode.NotFound);
                 var usersDto = _mapper.Map<List<AppUser>, List<AppUserDto>>(users);

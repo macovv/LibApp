@@ -102,22 +102,22 @@ namespace LibApp.Api
 
         private async Task CreateUserRoles(IServiceCollection services)
         {
-            var RoleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole>>();
-            var UserManager = services.BuildServiceProvider().GetService<UserManager<AppUser>>();
+            var roleManager = services.BuildServiceProvider().GetService<RoleManager<IdentityRole>>();
+            var userManager = services.BuildServiceProvider().GetService<UserManager<AppUser>>();
 
-            if (!(await RoleManager.RoleExistsAsync("Admin")))
+            if (!(await roleManager.RoleExistsAsync("Admin")))
             {
-                await RoleManager.CreateAsync(new IdentityRole("Admin"));
+                await roleManager.CreateAsync(new IdentityRole("Admin"));
             }
 
-            if (!(await RoleManager.RoleExistsAsync("User")))
+            if (!(await roleManager.RoleExistsAsync("User")))
             {
-                await RoleManager.CreateAsync(new IdentityRole("User"));
+                await roleManager.CreateAsync(new IdentityRole("User"));
             }
 
-            AppUser user = await UserManager.FindByEmailAsync("szampon@gmail.com");
-            await UserManager.AddToRoleAsync(user, "Admin");
-            await UserManager.AddToRoleAsync(user, "User");
+            AppUser user = await userManager.FindByEmailAsync("szampon@gmail.com");
+            await userManager.AddToRoleAsync(user, "Admin");
+            await userManager.AddToRoleAsync(user, "User");
         }
     }
 }
