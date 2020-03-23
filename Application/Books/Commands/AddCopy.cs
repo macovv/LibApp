@@ -46,13 +46,13 @@ namespace Application.Books
 
                 if(book != null)
                 {
-                    for(int i = 0; i < request.Amount; i++)
+                    for(var i = 0; i < request.Amount; i++)
                     {
                         book.BookCopies.Add(new Copy() { IsAvailable = true });
                     }
                     book.Quantity = book.BookCopies.Count();
-                    book.AvailableCopies = book.Quantity - book.BookCopies.Where(x => x.IsAvailable == false).Count();
-                    if (await _ctx.SaveChangesAsync() > 0)
+                    book.AvailableCopies = book.Quantity - book.BookCopies.Count(x => x.IsAvailable == false);
+                    if (await _ctx.SaveChangesAsync(cancellationToken) > 0)
                     {
                         return Unit.Value;
                     }

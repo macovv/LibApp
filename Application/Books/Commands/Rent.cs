@@ -38,18 +38,18 @@ namespace Application.Books
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == request.UserName);
-                var book = await _ctx.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.BookId);
+                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == request.UserName, cancellationToken: cancellationToken);
+                var book = await _ctx.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.BookId, cancellationToken: cancellationToken);
 
-                if (book.AvailableCopies > 0 && user.RentedBooks.Count() < AppUser.RentedBooksLimit && user.RentedBooks.Where(copy => copy.BookId == request.BookId).Count() == 0)
+                if (book.AvailableCopies > 0 && user.RentedBooks.Count() < AppUser.RentedBooksLimit && !user.RentedBooks.Where(copy => copy.BookId == request.BookId).Any())
                 {
-                    var copy = book.BookCopies.Where(x => x.IsAvailable == true).FirstOrDefault();
+                    var copy = book.BookCopies.FirstOrDefault(x => x.IsAvailable == true);
                     copy.IsAvailable = false;
                     copy.RentDate = DateTime.Now;
                     copy.ReturnDate = DateTime.Now.AddDays(7);
                     book.AvailableCopies--;
                     user.RentedBooks.Add(copy);
-                    await _ctx.SaveChangesAsync();
+                    await _ctx.SaveChangesAsync(cancellationToken);
                     return Unit.Value;
                 }
                 if (user.RentedBooks.Count() > AppUser.RentedBooksLimit)

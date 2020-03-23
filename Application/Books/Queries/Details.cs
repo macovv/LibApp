@@ -34,7 +34,7 @@ namespace Application.Books
 
             public async Task<BookDto> Handle(Query request, CancellationToken cancellationToken)
             {
-                var book = await _context.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.Id);
+                var book = await _context.Books.Include(x => x.BookCopies).SingleOrDefaultAsync(x => x.BookId == request.Id, cancellationToken: cancellationToken);
                 if (book == null)
                     throw new RestException(HttpStatusCode.NotFound);
                 var bookDto = _mapper.Map<Book, BookDto>(book);

@@ -43,7 +43,7 @@ namespace Application.Books
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var book = new Book()
+                var book = new Book
                 {
                     BookId = request.BookId,
                     Title = request.Title,
@@ -51,9 +51,10 @@ namespace Application.Books
                     Quantity = request.Quantity,
                     AvailableCopies = request.Quantity,
                     Added = DateTime.Now,
+                    BookCopies = new List<Copy>(),
                 };
 
-                book.BookCopies = new List<Copy>(); // to remove later and change the model maybe
+                // to remove later and change the model maybe
                 for (int i = 0; i < book.Quantity; i++)
                 {
                     book.BookCopies.Add(new Copy() { Book = book, IsAvailable = true });

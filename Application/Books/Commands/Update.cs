@@ -41,13 +41,13 @@ namespace Application.Books
             }
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var book = await _ctx.Books.Where(x => x.BookId == request.BookId).FirstOrDefaultAsync();
+                var book = await _ctx.Books.Where(x => x.BookId == request.BookId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
                 if(book != null)
                 {
                     book.Title = request.Title ?? book.Title;
                     book.Description = request.Description ?? book.Description;
                     _ctx.Update(book);
-                    if(await _ctx.SaveChangesAsync() > 0)
+                    if(await _ctx.SaveChangesAsync(cancellationToken) > 0)
                         return Unit.Value;
                     throw new Exception("Problem with updating!");
                 }

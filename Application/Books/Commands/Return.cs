@@ -32,8 +32,8 @@ namespace Application.Books
 
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == request.UserName);
-                var book = await _ctx.Books.SingleOrDefaultAsync(x => x.BookId == request.BookId);
+                var user = await _ctx.Users.Include(x => x.RentedBooks).SingleOrDefaultAsync(x => x.UserName == request.UserName, cancellationToken: cancellationToken);
+                var book = await _ctx.Books.SingleOrDefaultAsync(x => x.BookId == request.BookId, cancellationToken: cancellationToken);
 
                 var rentedBooks = user.RentedBooks.Where(x => x.BookId == request.BookId).ToList();
                 if (rentedBooks != null)
